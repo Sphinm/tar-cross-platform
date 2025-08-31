@@ -268,30 +268,6 @@ jobs:
       - name: List packages
         run: ls -R ./npm
         shell: bash
-      - name: Setup NPM
-        run: |
-          # 检查 NPM_TOKEN 是否设置
-          if [ -z "$NODE_AUTH_TOKEN" ]; then
-            echo "ERROR: NODE_AUTH_TOKEN is not set!"
-          fi
-
-          # 设置 npm 配置
-          npm config set access public
-          echo "NPM Token configured: ${{ secrets.NPM_TOKEN != '' }}"
-          echo "Token length: ${#NODE_AUTH_TOKEN}"
-
-          echo "=== Token Permission Verification ==="
-          echo "Current user:"
-          npm whoami
-          echo "Token list:"
-          npm token list || echo "Cannot list tokens (might be restricted)"
-          echo "Package access:"
-          npm access ls-packages || echo "Cannot list packages (might be normal for new users)"
-          echo "Organization membership:"
-          npm org ls || echo "Not a member of any organizations"
-          echo "=== End Verification ==="
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Publish
         run: |
           npm install -g npm
