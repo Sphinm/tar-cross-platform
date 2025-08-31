@@ -270,9 +270,8 @@ jobs:
         shell: bash
       - name: Setup NPM
         run: |
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
           npm config set access public
-          echo "NPM Token configured: ${{ secrets.NPM_TOKEN != '' }}"
+          echo "NPM Token configured: ${{ secrets.NPM_TOKEN }}"
           echo "=== Token Permission Verification ==="
           echo "Current user:"
           npm whoami
@@ -282,8 +281,6 @@ jobs:
           npm access ls-packages || echo "Cannot list packages (might be normal for new users)"
           echo "Organization membership:"
           npm org ls || echo "Not a member of any organizations"
-          echo "Checking target package:"
-          npm view @rust-cross-platform/tar || echo "Package does not exist yet (this is normal for first publish)"
           echo "=== End Verification ==="
       - name: Publish
         run: |
