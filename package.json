@@ -1,6 +1,6 @@
 {
   "name": "@rust-cross-platform/tar",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "Node.js tar binding https://docs.rs/tar/latest/tar/",
   "main": "index.js",
   "browser": "browser.js",
