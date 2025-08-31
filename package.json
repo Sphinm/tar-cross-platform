@@ -4,7 +4,10 @@
   "description": "Node.js tar binding https://docs.rs/tar/latest/tar/",
   "main": "index.js",
   "browser": "browser.js",
-  "repository": "git@github.com:Sphinm/tar-cross-platform.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sphinm/tar-cross-platform.git"
+  },
   "license": "MIT",
   "keywords": [
     "NAPI",
