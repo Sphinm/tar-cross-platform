@@ -56,12 +56,9 @@ jobs:
           - host: macos-latest
             target: x86_64-apple-darwin
             build: yarn build --target x86_64-apple-darwin
-          - host: windows-latest
-            build: yarn build --target x86_64-pc-windows-msvc
-            target: x86_64-pc-windows-msvc
-          - host: windows-latest
-            build: yarn build --target i686-pc-windows-msvc
-            target: i686-pc-windows-msvc
+          - host: macos-latest
+            target: aarch64-apple-darwin
+            build: yarn build --target aarch64-apple-darwin
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             build: TARGET_CC=clang yarn build --target x86_64-unknown-linux-gnu --use-napi-cross
@@ -70,59 +67,15 @@ jobs:
             build: |
               yarn build --target x86_64-unknown-linux-musl -x
               rm tar.linux-x64-gnu.node
-          - host: macos-latest
-            target: aarch64-apple-darwin
-            build: yarn build --target aarch64-apple-darwin
           - host: ubuntu-latest
             target: aarch64-unknown-linux-gnu
             build: |
               TARGET_CC=clang yarn build --target aarch64-unknown-linux-gnu --use-napi-cross
               rm tar.linux-x64-gnu.node
           - host: ubuntu-latest
-            target: armv7-unknown-linux-gnueabihf
-            build: |
-              TARGET_CC=clang yarn build --target armv7-unknown-linux-gnueabihf --use-napi-cross
-              rm tar.linux-x64-gnu.node
-          - host: ubuntu-latest
-            target: aarch64-linux-android
-            build: |
-              yarn build --target aarch64-linux-android
-              rm tar.linux-x64-gnu.node
-          - host: ubuntu-latest
-            target: armv7-linux-androideabi
-            build: |
-              yarn build --target armv7-linux-androideabi
-              rm tar.linux-x64-gnu.node
-          - host: ubuntu-latest
             target: aarch64-unknown-linux-musl
             build: |
               yarn build --target aarch64-unknown-linux-musl -x
-              rm tar.linux-x64-gnu.node
-          - host: ubuntu-latest
-            target: powerpc64le-unknown-linux-gnu
-            build: |
-              export CC=clang
-              export TARGET_CC=clang
-              yarn build --target powerpc64le-unknown-linux-gnu --use-napi-cross
-              rm tar.linux-x64-gnu.node
-          - host: ubuntu-latest
-            target: s390x-unknown-linux-gnu
-            build: |
-              export CC=clang
-              export TARGET_CC=clang
-              export CFLAGS="-fuse-ld=lld"
-              yarn build --target s390x-unknown-linux-gnu --use-napi-cross
-              rm tar.linux-x64-gnu.node
-          - host: windows-latest
-            target: aarch64-pc-windows-msvc
-            build: yarn build --target aarch64-pc-windows-msvc
-          - host: ubuntu-latest
-            target: wasm32-wasip1-threads
-            build: |
-              wget https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-27/wasi-sdk-27.0-x86_64-linux.tar.gz
-              tar -xvf wasi-sdk-27.0-x86_64-linux.tar.gz
-              export WASI_SDK_PATH="$(pwd)/wasi-sdk-27.0-x86_64-linux"
-              yarn build --target wasm32-wasip1-threads
               rm tar.linux-x64-gnu.node
     name: stable - ${{ matrix.settings.target }} - node@22
     runs-on: ${{ matrix.settings.host }}
@@ -225,7 +178,7 @@ jobs:
           name: bindings-freebsd
           path: ${{ env.APP_NAME }}.*.node
           if-no-files-found: error
-  test-macOS-windows-binding:
+  test-macOS-binding:
     name: Test bindings on ${{ matrix.settings.target }} - node@${{ matrix.node }}
     needs:
       - build
@@ -233,15 +186,6 @@ jobs:
       fail-fast: false
       matrix:
         settings:
-          - host: windows-latest
-            target: x86_64-pc-windows-msvc
-            architecture: x64
-          - host: windows-latest
-            target: i686-pc-windows-msvc
-            architecture: x64
-          - host: windows-11-arm
-            target: aarch64-pc-windows-msvc
-            architecture: arm64
           - host: macos-latest
             target: x86_64-apple-darwin
             architecture: x64
@@ -261,19 +205,7 @@ jobs:
           cache: yarn
           architecture: ${{ matrix.settings.architecture }}
       - name: Install dependencies
-        if: ${{ matrix.settings.target == 'i686-pc-windows-msvc' }}
-        run: |
-          yarn config set --json supportedArchitectures.cpu '["current", "ia32"]'
-          yarn install
-      - name: Install dependencies
-        if: ${{ matrix.settings.target != 'i686-pc-windows-msvc' }}
         run: yarn install
-      - name: Setup node
-        if: ${{ matrix.settings.target == 'i686-pc-windows-msvc' }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-          architecture: x86
       - name: Download artifacts
         uses: actions/download-artifact@v5
         with:
@@ -296,9 +228,6 @@ jobs:
           - x86_64-unknown-linux-musl
           - aarch64-unknown-linux-gnu
           - aarch64-unknown-linux-musl
-          - armv7-unknown-linux-gnueabihf
-          - s390x-unknown-linux-gnu
-          - powerpc64le-unknown-linux-gnu
         node:
           - '20'
           - '22'
@@ -316,12 +245,6 @@ jobs:
           node -e "
             if ('${{ matrix.target }}'.startsWith('aarch64')) {
               console.log('PLATFORM=linux/arm64')
-            } else if ('${{ matrix.target }}'.startsWith('armv7')) {
-              console.log('PLATFORM=linux/arm/v7')
-            } else if ('${{ matrix.target }}'.startsWith('powerpc64le')) {
-              console.log('PLATFORM=linux/ppc64le')
-            } else if ('${{ matrix.target }}'.startsWith('s390x')) {
-              console.log('PLATFORM=linux/s390x')
             } else {
               console.log('PLATFORM=linux/amd64')
             }
@@ -336,7 +259,7 @@ jobs:
       - name: Install dependencies
         run: |
           yarn config set --json supportedArchitectures.os '["current", "linux"]'
-          yarn config set --json supportedArchitectures.cpu '["current", "arm64", "arm", "ppc64", "s390x", "x64"]'
+          yarn config set --json supportedArchitectures.cpu '["current", "arm64", "x64"]'
           yarn config set --json supportedArchitectures.libc '["current", "glibc", "musl"]'
           yarn install
       - name: Download artifacts
@@ -356,45 +279,12 @@ jobs:
         if: ${{ !contains(matrix.target, 'aarch64') }}
       - name: Test bindings
         uses: addnab/docker-run-action@v3
-        # Node.js on qemu randomly segfaults on powerpc64le
-        continue-on-error: ${{ matrix.target == 'powerpc64le-unknown-linux-gnu' }}
         with:
           image: ${{ steps.docker.outputs.IMAGE }}
           options: -v ${{ github.workspace }}:${{ github.workspace }} -w ${{ github.workspace }} --platform ${{ steps.docker.outputs.PLATFORM }}
           run: yarn run test
 
-  test-nodejs-wasi:
-    name: Test bindings on wasm32-wasi - node@${{ matrix.node }}
-    needs:
-      - build
-    strategy:
-      fail-fast: false
-      matrix:
-        node:
-          - '20'
-          - '22'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node }}
-          cache: yarn
-      - name: Install dependencies
-        run: yarn install
-      - name: Download artifacts
-        uses: actions/download-artifact@v5
-        with:
-          name: bindings-wasm32-wasip1-threads
-          path: .
-      - name: List packages
-        run: ls -R .
-        shell: bash
-      - name: Test bindings
-        run: yarn test
-        env:
-          NAPI_RS_FORCE_WASI: '1'
+
   publish:
     name: Publish
     runs-on: ubuntu-latest
@@ -404,9 +294,8 @@ jobs:
     needs:
       - lint
       - build-freebsd
-      - test-macOS-windows-binding
+      - test-macOS-binding
       - test-linux-binding
-      - test-nodejs-wasi
     steps:
       - uses: actions/checkout@v5
       - name: Setup node
