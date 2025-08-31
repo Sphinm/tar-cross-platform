@@ -101,8 +101,5 @@
     "singleQuote": true,
     "arrowParens": "always"
   },
-  "packageManager": "yarn@4.9.4",
-  "resolutions": {
-    "@napi-rs/tar": "workspace:*"
-  }
+  "packageManager": "yarn@4.9.4"
 }
