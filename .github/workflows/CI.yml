@@ -271,6 +271,7 @@ jobs:
       - name: Publish
         run: |
           npm install -g npm
+          echo "$(git log -1 --pretty=%B)"
           if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
           then
             npm publish --access public
@@ -282,5 +283,5 @@ jobs:
             echo "Not a release, skipping publish"
           fi
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
